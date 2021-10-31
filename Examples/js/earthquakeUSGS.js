@@ -8,15 +8,15 @@
             id: "id",
             dataType: tableau.dataTypeEnum.string
         }, {
-            id: "mag",
+            id: "email",
             alias: "magnitude",
             dataType: tableau.dataTypeEnum.float
         }, {
-            id: "title",
+            id: "first_name",
             alias: "title",
             dataType: tableau.dataTypeEnum.string
         }, {
-            id: "location",
+            id: "last_name",
             dataType: tableau.dataTypeEnum.geometry
         }];
 
@@ -31,23 +31,39 @@
 
     // Download the data
     myConnector.getData = function(table, doneCallback) {
-        $.getJSON("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.geojson", function(resp) {
-            var feat = resp.features,
+        $.ajax({
+            url: "https://cors-anywhere.herokuapp.com/https://reqres.in/api/users?page=2",
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json",
+            // set the request header authorization to the bearer token that is generated
+            headers: {
+                "X-Requested-With": "XMLHttpRequest"
+            },
+            success: function(result) {
+                console.log("bhai")
+                console.log(result);
+                feat = result.data
                 tableData = [];
+                tableau.log(feat)
 
-            // Iterate over the JSON object
-            for (var i = 0, len = feat.length; i < len; i++) {
-                tableData.push({
-                    "id": feat[i].id,
-                    "mag": feat[i].properties.mag,
-                    "title": feat[i].properties.title,
-                    "location": feat[i].geometry
-                });
-            }
-
-            table.appendRows(tableData);
-            doneCallback();
+                // Iterate over the JSON object
+                for (var i = 0, len = feat.length; i < len; i++) {
+                    tableData.push({
+                        "id": feat[i].id,
+                        "email": feat[i].email,
+                        "first_name": feat[i].first_name,
+                        "last_name": feat[i].last_name
+                    });
+                }
+                table.appendRows(tableData);
+                doneCallback();
+            },
+            error: function(error) {
+                console.log(`Error ${error}`)
+            },
         });
+
     };
 
     tableau.registerConnector(myConnector);
